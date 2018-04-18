@@ -6,22 +6,23 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$winSCPPath="$scriptPath\..\Software\WinSCP\WinSCP.exe"
-$defaultPort=22
-$defaultUsername="root"
-$defaultPassword="YourPasswordHere"
+$config=Import-Clixml "$($scriptPath)\Config.xml"
+$softPath=$($config | Where-Object {$_.Proto -eq "SCP"}).Path
+if($($config | Where-Object {$_.Proto -eq "SCP"}).PathAbsolute -ne $true){
+    $softPath="$scriptPath\$softPath"
+}
 
 if($port -eq "" -or $port -eq -1){
-  $port=$defaultPort
+    $port=$($config | Where-Object {$_.Proto -eq "SCP"}).defaultPort
 }
 if($username -eq ""){
-  $username=$defaultUsername
+    $username=$($config | Where-Object {$_.Proto -eq "SCP"}).defaultUsername
 }
 if($password -eq ""){
-  $password=$defaultPassword
+    $password=$($config | Where-Object {$_.Proto -eq "SCP"}).defaultPassword
 }
 if($ip -eq ""){
   Throw "You must specify an ip address or a host!"
 }
 
-Start-Process -FilePath $($winSCPPath) -ArgumentList "scp://$($username):$($password)@$($ip):$($port)" -WindowStyle Maximized
+Start-Process -FilePath $($softPath) -ArgumentList "scp://$($username):$($password)@$($ip):$($port)" -WindowStyle Maximized

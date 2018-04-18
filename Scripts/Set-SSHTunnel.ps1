@@ -13,12 +13,11 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$plinkPath="$scriptPath\..\Software\Putty\plink.exe"
-$defaultPort=22
-$defaultUsername="root"
-$defaultPassword="YourPasswordHere"
-$minTunnelPort=20000
-$maxTunnelPort=50000
+$config=Import-Clixml "$($scriptPath)\Config.xml"
+$softPath=$($config | Where-Object {$_.Proto -eq "SSH"}).plinkPath
+if($($config | Where-Object {$_.Proto -eq "SSH"}).PathAbsolute -ne $true){
+    $softPath="$scriptPath\$softPath"
+}
 
 $global:currentScript=$MyInvocation.MyCommand.Name
 $global:currentLocation=Split-Path -Path $MyInvocation.MyCommand.Path
@@ -31,7 +30,7 @@ function Get-RandomPort(){
       Import-Module "$($global:currentLocation)\modules\$($moduleName)" -Force -ErrorAction Stop -Scope Local
       do{
           $portUsed=$false
-          $tunnelPort=Get-Random -Minimum $minTunnelPort -Maximum $maxTunnelPort
+          $tunnelPort=Get-Random -Minimum $($config | Where-Object {$_.Proto -eq "SSH"}).minTunnelPort -Maximum $($config | Where-Object {$_.Proto -eq "SSH"}).maxTunnelPort
           foreach ($usedPort in Get-NetworkStatistics | Select LocalPort) {
               if ($usedPort.LocalPort -eq $tunnelPort){
                   $portUsed=$true
@@ -69,17 +68,17 @@ if($multiTunnelsArgs -ne ""){
         $connObj | Add-Member -type NoteProperty -name url -Value $curSubArr[0]
       }
       if($($curSubArr[1] -replace "[\s|\n|\r]",'') -eq "" -or $curSubArr[1] -eq -1){
-        $connObj | Add-Member -type NoteProperty -name port -Value $defaultPort
+        $connObj | Add-Member -type NoteProperty -name port -Value $($config | Where-Object {$_.Proto -eq "SSH"}).defaultPort
       }else{
         $connObj | Add-Member -type NoteProperty -name port -Value $curSubArr[1]
       }
       if($($curSubArr[2] -replace "[\s|\n|\r]",'') -eq ""){
-        $connObj | Add-Member -type NoteProperty -name username -Value $defaultUsername
+        $connObj | Add-Member -type NoteProperty -name username -Value $($config | Where-Object {$_.Proto -eq "SSH"}).defaultUsername
       }else{
         $connObj | Add-Member -type NoteProperty -name username -Value $curSubArr[2]
       }
       if($($curSubArr[3] -replace "[\s|\n|\r]",'') -eq ""){
-        $connObj | Add-Member -type NoteProperty -name password -Value $defaultPassword
+        $connObj | Add-Member -type NoteProperty -name password -Value $($config | Where-Object {$_.Proto -eq "SSH"}).defaultPassword
       }else{
         $connObj | Add-Member -type NoteProperty -name password -Value $curSubArr[3]
       }
@@ -102,10 +101,10 @@ if($multiTunnelsArgs -ne ""){
     write-Host "Establishing tunnel $($i+1) on local port $($tunnelPort)..." -ForegroundColor "Yellow"
 
     if ($previousTunnel -eq ""){
-      Write-Host "$($plinkPath) -ssh $($currConnObj.url) -P $($currConnObj.port) -l $($currConnObj.username) -pw $($currConnObj.password) -C -T -L $($tunnelPort):$($nextConnObj.url):$($nextConnObj.port) -N"
-      Start-Process -FilePath $($plinkPath) -ArgumentList "-ssh $($currConnObj.url) -P $($currConnObj.port) -l $($currConnObj.username) -pw $($currConnObj.password) -C -T -L $($tunnelPort):$($nextConnObj.url):$($nextConnObj.port) -N" -WindowStyle Minimized
+      Write-Host "$($softPath) -ssh $($currConnObj.url) -P $($currConnObj.port) -l $($currConnObj.username) -pw $($currConnObj.password) -C -T -L $($tunnelPort):$($nextConnObj.url):$($nextConnObj.port) -N"
+      Start-Process -FilePath $($softPath) -ArgumentList "-ssh $($currConnObj.url) -P $($currConnObj.port) -l $($currConnObj.username) -pw $($currConnObj.password) -C -T -L $($tunnelPort):$($nextConnObj.url):$($nextConnObj.port) -N" -WindowStyle Minimized
     }else{
-      Start-Process -FilePath $($plinkPath) -ArgumentList "-ssh localhost -P $($previousTunnel) -l $($currConnObj.username) -pw $($currConnObj.password) -C -T -L $($tunnelPort):$($nextConnObj.url):$($nextConnObj.port) -N" -WindowStyle Minimized
+      Start-Process -FilePath $($softPath) -ArgumentList "-ssh localhost -P $($previousTunnel) -l $($currConnObj.username) -pw $($currConnObj.password) -C -T -L $($tunnelPort):$($nextConnObj.url):$($nextConnObj.port) -N" -WindowStyle Minimized
     }
     sleep 10
   }
@@ -142,16 +141,16 @@ if($multiTunnelsArgs -ne ""){
   }
 
   if($port1 -eq ""){
-      $port1=$defaultPort
+      $port1=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPort
   }
   if($port2 -eq ""){
-      $port2=$defaultPort
+      $port2=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPort
   }
   if($username1 -eq ""){
-      $username1=$defaultUsername
+      $username1=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultUsername
   }
   if($password1 -eq ""){
-      $password1=$defaultPassword
+      $password1=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPassword
   }
   if($username2 -eq ""){
       $username2=$username1
@@ -164,7 +163,7 @@ if($multiTunnelsArgs -ne ""){
       $tunnelPort=Get-RandomPort
   }
   write-Host "Establishing tunnel on local port $($tunnelPort)..." -ForegroundColor "Yellow"
-  Start-Process -FilePath $($plinkPath) -ArgumentList "-ssh $($ip1) -P $($port1) -l $($username1) -pw $($password1) -C -T -L $($tunnelPort):$($ip2):$($port2) -N" -WindowStyle Minimized
+  Start-Process -FilePath $($softPath) -ArgumentList "-ssh $($ip1) -P $($port1) -l $($username1) -pw $($password1) -C -T -L $($tunnelPort):$($ip2):$($port2) -N" -WindowStyle Minimized
   sleep 10
 
   if($mode -eq "scp"){

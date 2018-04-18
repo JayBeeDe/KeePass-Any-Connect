@@ -6,34 +6,32 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$puttyPath="$scriptPath\..\Software\SuperPutty\SuperPutty.exe"
-$defaultPort=22
-$defaultUsername="root"
-$defaultPassword="YourPasswordHere"
-$superPuttyMode=$true
-$puttyProfile="RPI"
+$config=Import-Clixml "$($scriptPath)\Config.xml"
+$softPath=$($config | Where-Object {$_.Proto -eq "SSH"}).Path
+if($($config | Where-Object {$_.Proto -eq "SSH"}).PathAbsolute -ne $true){
+    $softPath="$scriptPath\$softPath"
+}
 
 if($port -eq "" -or $port -eq -1){
-  $port=$defaultPort
+  $port=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPort
 }
 if($username -eq ""){
-  $username=$defaultUsername
+  $username=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultUsername
 }
 if($password -eq ""){
-  $password=$defaultPassword
+  $password=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPassword
 }
 if($ip -eq ""){
   Throw "You must specify an ip address or a host!"
 }
-if($superPuttyMode -eq $true){
+if($($config | Where-Object {$_.Proto -eq "SSH"}).superPuttyMode -eq $true){
     $specArg="-host"
 }else{
     $specArg=""
 }
-if($puttyProfile -eq ""){
+if($($config | Where-Object {$_.Proto -eq "SSH"}).puttyProfile -eq ""){
     $specArg2=""
 }else{
-    $specArg2="-load $($puttyProfile)"
+    $specArg2="-load $(($config | Where-Object {$_.Proto -eq "SSH"}).puttyProfile)"
 }
-
-Start-Process -FilePath $($puttyPath) -ArgumentList "$($specArg2) -ssh $($specArg) $($ip) -P $($port) -l $($username) -pw $($password)" -WindowStyle Maximized
+Start-Process -FilePath $($softPath) -ArgumentList "$($specArg2) -ssh $($specArg) $($ip) -P $($port) -l $($username) -pw $($password)" -WindowStyle Maximized

@@ -4,17 +4,26 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-
-$moduleName="Get-ConfigurationXML.ps1"
-Unblock-File -Path "$($global:currentLocation)\modules\$($moduleName)" -ErrorAction Stop
-Import-Module "$($global:currentLocation)\modules\$($moduleName)" -Force -ErrorAction Stop -Scope Local
-
-Get-ConfigurationXML -path "$scriptPath\Config.xml"
-$puttyPath="$scriptPath\..\$($appSettings["puttyPath"])"
+$config=Import-Clixml "$($scriptPath)\Config.xml"
+$softPath=$($config | Where-Object {$_.Proto -eq "Serial"}).Path
+if($($config | Where-Object {$_.Proto -eq "Serial"}).PathAbsolute -ne $true){
+    $softPath="$scriptPath\$softPath"
+}
 
 if(-Not($speed -gt 1000)){
-    $speed=9600
+    $speed=$($config | Where-Object {$_.Proto -eq "Serial"}).defaultSpeed
 }
+if($($config | Where-Object {$_.Proto -eq "Serial"}).superPuttyMode -eq $true){
+    $specArg=""
+}else{
+    $specArg=""
+}
+if($($config | Where-Object {$_.Proto -eq "Serial"}).puttyProfile -eq ""){
+    $specArg2=""
+}else{
+    $specArg2="-load $(($config | Where-Object {$_.Proto -eq "Serial"}).puttyProfile)"
+}
+
 $ports=Get-WMIObject Win32_pnpentity | Where-Object{$_.PNPClass -match ".*Ports.*"} | select Name
 $ports | foreach{
     $port=$_.Name -replace "^.*\(COM",""
@@ -25,11 +34,11 @@ $ports | foreach{
         $port=$port.ToInt32($Null)
         Write-Host "The COM port $($port.ToInt32($Null)) will be used at speed $($speed)" -ForegroundColor Yellow
         if($username -eq $null -or $username -eq ""){
-            #&"C:\Software\Putty\modules\vdesk.exe" run-on-switch 2 $($puttyPath) -load $($puttyProfile) -serial COM$($port) -sercfg $($speed)
-            Start-Process -FilePath $puttyPath -ArgumentList "-load RPI -serial COM$($port) -sercfg $($speed)" -WindowStyle Maximized
+            #&"C:\Software\Putty\modules\vdesk.exe" run-on-switch 2 $($softPath) -load $($puttyProfile) -serial COM$($port) -sercfg $($speed)
+            Start-Process -FilePath $softPath -ArgumentList "$($specArg2) -serial COM$($port) -sercfg $($speed)" -WindowStyle Maximized
         }else{
-            #&"C:\Software\Putty\modules\vdesk.exe" run-on-switch 2 $($puttyPath) -load $($puttyProfile) -serial COM$($port) -sercfg $($speed) -l $($username)
-            Start-Process -FilePath $puttyPath -ArgumentList "-load RPI -serial COM$($port) -sercfg $($speed) -l $($username)" -WindowStyle Maximized
+            #&"C:\Software\Putty\modules\vdesk.exe" run-on-switch 2 $($softPath) -load $($puttyProfile) -serial COM$($port) -sercfg $($speed) -l $($username)
+            Start-Process -FilePath $softPath -ArgumentList "$($specArg2) $($specArg) -serial COM$($port) -sercfg $($speed) -l $($username)" -WindowStyle Maximized
         }
     }
 }

@@ -7,6 +7,13 @@ Param(
   [string]$VM=""
 )
 
+$scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
+$config=Import-Clixml "$($scriptPath)\Config.xml"
+$softPath=$($config | Where-Object {$_.Proto -eq "RDP"}).Path
+if($($config | Where-Object {$_.Proto -eq "RDP"}).PathAbsolute -ne $true){
+    $softPath="$scriptPath\$softPath"
+}
+
 if($VM -ne ""){
   if($(Get-Service | Where-Object {$_.Name -eq "vmms"}).Status -ne "Running"){
     try{
@@ -48,16 +55,11 @@ if($VM -ne ""){
   }
 }
 
-$rdpclient="C:\WINDOWS\system32\mstsc.exe"
-#$rdpclient="C:\Software\RD Connection Manager\RDCMan.exe"
-$defaultUsername="Administrator"
-$defaultPassword="YourPasswordHere
-
 if($username -eq ""){
-  $username=$defaultUsername
+  $username=$($config | Where-Object {$_.Proto -eq "RDP"}).defaultUsername
 }
 if($password -eq ""){
-  $password=$defaultPassword
+  $password=$($config | Where-Object {$_.Proto -eq "RDP"}).defaultPassword
 }
 if($ip -eq ""){
   Throw "You must specify an ip address or a host!"
@@ -65,7 +67,11 @@ if($ip -eq ""){
 if($port -ne "" -and $port -ne -1){
     $prefPort=":$($port)"
 }else{
-    $prefPort=""
+    if($($config | Where-Object {$_.Proto -eq "RDP"}).defaultPort -eq 3389){
+      $prefPort=""
+    }else{
+      $prefPort=":$($config | Where-Object {$_.Proto -eq "RDP"}).defaultPort"
+    }
 }
 if($fullScreen -eq "true"){
     $prefFullScreen="/multimon /f"
@@ -73,6 +79,4 @@ if($fullScreen -eq "true"){
     $prefFullScreen=""
 }
 
-cmd /c "cmdkey /generic:TERMSRV/$($ip) /user:$($username) /pass:$($password) && $($rdpclient) $($prefFullScreen) /v:$($ip)$($prefPort) && timeout /t 0 /nobreak && cmdkey /delete:TERMSRV/$($ip) && exit"
-
-
+cmd /c "cmdkey /generic:TERMSRV/$($ip) /user:$($username) /pass:$($password) && $($softPath) $($prefFullScreen) /v:$($ip)$($prefPort) && timeout /t 0 /nobreak && cmdkey /delete:TERMSRV/$($ip) && exit"
