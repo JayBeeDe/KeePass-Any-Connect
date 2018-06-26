@@ -6,32 +6,41 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$config=Import-Clixml "$($scriptPath)\Config.xml"
-$softPath=$($config | Where-Object {$_.Proto -eq "SSH"}).Path
-if($($config | Where-Object {$_.Proto -eq "SSH"}).PathAbsolute -ne $true){
-    $softPath="$scriptPath\$softPath"
-}
+[xml]$XmlDocument=Get-Content -Path "$($scriptPath)\Config.xml"
+<#$XmlDocument | Select-Xml -XPath "/Settings/General/add[@key='superPuttyMode']" | ForEach-Object { $_
+.Node.value }#>
+
+$soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/app" | ForEach-Object { $_.Node.value }
+$softPath="$($scriptPath)\$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/path" | ForEach-Object { $_.Node.value })"
 
 if($port -eq "" -or $port -eq -1){
-  $port=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPort
+  $port=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultPort" | ForEach-Object { $_.Node.value })
 }
 if($username -eq ""){
-  $username=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultUsername
+  $username=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultUsername" | ForEach-Object { $_.Node.value })
+  if($username -eq $null){
+    $username=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultUsername" | ForEach-Object { $_.Node.value })
+  }
 }
 if($password -eq ""){
-  $password=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPassword
+  $password=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultPassword" | ForEach-Object { $_.Node.value })
+  if($password -eq $null){
+    $password=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultPassword" | ForEach-Object { $_.Node.value })
+  }
 }
 if($ip -eq ""){
   Throw "You must specify an ip address or a host!"
 }
-if($($config | Where-Object {$_.Proto -eq "SSH"}).superPuttyMode -eq $true){
+if($soft -eq "SuperPutty"){
     $specArg="-host"
 }else{
     $specArg=""
 }
-if($($config | Where-Object {$_.Proto -eq "SSH"}).puttyProfile -eq ""){
+$puttyProfile=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/profile" | ForEach-Object { $_.Node.value })
+if($puttyProfile -eq $null){
     $specArg2=""
 }else{
-    $specArg2="-load $(($config | Where-Object {$_.Proto -eq "SSH"}).puttyProfile)"
+    $specArg2="-load $($puttyProfile)"
 }
+
 Start-Process -FilePath $($softPath) -ArgumentList "$($specArg2) -ssh $($specArg) $($ip) -P $($port) -l $($username) -pw $($password)" -WindowStyle Maximized

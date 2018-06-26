@@ -7,17 +7,29 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$config=Import-Clixml "$($scriptPath)\Config.xml"
-$softPath=$($config | Where-Object {$_.Proto -eq "VNC"}).Path
-if($($config | Where-Object {$_.Proto -eq "VNC"}).PathAbsolute -ne $true){
-    $softPath="$scriptPath\$softPath"
-}
+[xml]$XmlDocument=Get-Content -Path "$($scriptPath)\Config.xml"
+
+
+$soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/VNC/app" | ForEach-Object { $_.Node.value }
+$softPath="$($scriptPath)\$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/path" | ForEach-Object { $_.Node.value })"
 
 if($port -eq "" -or $port -eq -1){
-  $port=$($config | Where-Object {$_.Proto -eq "VNC"}).defaultPort
+  $port=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/VNC/defaultPort" | ForEach-Object { $_.Node.value })
+  if($port -eq $null){
+    $username=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/VNC/defaultUsername" | ForEach-Object { $_.Node.value })
+    if($username -eq $null){
+      $username=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultUsername" | ForEach-Object { $_.Node.value })
+    }
+    if ($username -eq "root"){
+      $port="5901"
+    }
+  }
 }
 if($password -eq ""){
-  $password=$($config | Where-Object {$_.Proto -eq "VNC"}).defaultPassword
+  $password=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/VNC/defaultPassword" | ForEach-Object { $_.Node.value })
+  if($password -eq $null){
+    $password=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultPassword" | ForEach-Object { $_.Node.value })
+  }
 }
 if($ip -eq ""){
   Throw "You must specify an ip address or a host!"

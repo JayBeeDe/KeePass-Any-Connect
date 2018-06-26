@@ -1,0 +1,110 @@
+﻿<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="RDTabsFavoritesConfiguration">
+		<xs:complexType>
+			<xs:all>
+				<xs:element type="xs:int" name="ConfigVersion" />
+				<xs:element name="RDTabsFavorites">
+					<xs:complexType>
+						<xs:all>
+							<xs:element name="DefaultConnection" type="FavoriteType" maxOccurs="1" minOccurs="0" />
+							<xs:element name="Collection">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="FavoritesList">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Favorite" type="FavoriteType" maxOccurs="unbounded" minOccurs="0" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="Folders" type="FolderType" />
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+
+  <xs:complexType name="FolderType">
+    <xs:all>
+      <xs:element name="Subfolders">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="FavoritesFolder" type="FolderType" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element type="xs:string" name="FolderName" />
+    </xs:all >
+  </xs:complexType>
+
+  <xs:complexType name="FavoriteType">
+    <xs:all>
+      <xs:element type="xs:string" name="serverName" minOccurs="0" />
+      <xs:element type="xs:string" name="favoriteName" minOccurs="0" />
+      <xs:element type="xs:string" name="encodedFavoriteFolderPath" minOccurs="0" />
+      <xs:element type="xs:int" name="RDPPort" minOccurs="0" />
+      <xs:element type="xs:string" name="connectToConsole" minOccurs="0" />
+      <xs:element type="xs:string" name="userName" minOccurs="0" />
+      <xs:element type="xs:base64Binary" name="encryptedPassword" minOccurs="0" />
+      <xs:element type="xs:base64Binary" name="salt" minOccurs="0" />
+      <xs:element type="xs:string" name="domainName" minOccurs="0" />
+      <xs:element type="xs:int" name="desktopWidth" minOccurs="0" />
+      <xs:element type="xs:int" name="desktopHeight" minOccurs="0" />
+      <xs:element type="xs:string" name="hideStatusBar" minOccurs="0" />
+      <xs:element type="xs:string" name="bitDepth" minOccurs="0" />
+      <xs:element type="xs:string" name="audioRedirectionMode" minOccurs="0" />
+      <xs:element type="xs:string" name="keyboardHookMode" minOccurs="0" />
+      <xs:element type="xs:string" name="resourceDrives" minOccurs="0" />
+      <xs:element type="xs:string" name="resourcePrinters" minOccurs="0" />
+      <xs:element type="xs:string" name="resourceSerialPorts" minOccurs="0" />
+      <xs:element type="xs:string" name="resourceSmartCards" minOccurs="0" />
+      <xs:element type="xs:string" name="displayDesktopBackground" minOccurs="0" />
+      <xs:element type="xs:string" name="displayContentsWhileDragging" minOccurs="0" />
+      <xs:element type="xs:string" name="displayMenuWindowAnimations" minOccurs="0" />
+      <xs:element type="xs:string" name="displayThemes" minOccurs="0" />
+      <xs:element type="xs:string" name="displayCursorShadows" minOccurs="0" />
+      <xs:element type="xs:string" name="displayCursorBlinking" minOccurs="0" />
+      <xs:element type="xs:string" name="cacheBitmaps" minOccurs="0" />
+      <xs:element type="xs:string" name="authenticationLevel" minOccurs="0" />
+      <xs:element type="xs:string" name="desktopDisplayMode" minOccurs="0" />
+      <xs:element type="xs:string" name="resourceDevices" minOccurs="0" />
+      <xs:element type="xs:string" name="resourceClipboard" minOccurs="0" />
+      <xs:element type="xs:string" name="displayDesktopComposition" minOccurs="0" />
+      <xs:element type="xs:string" name="displayFontSmoothing" minOccurs="0" />
+      <xs:element type="xs:string" name="startProgramAfterLogon" minOccurs="0" />
+      <xs:element type="xs:string" name="startProgramPath" minOccurs="0" />
+      <xs:element type="xs:string" name="startProgramWorkingFolder" minOccurs="0" />
+      <xs:element type="xs:string" name="autoReconnect" minOccurs="0" />
+      <xs:element type="xs:string" name="autoRedial" minOccurs="0" />
+      <xs:element type="xs:string" name="TSGatewayEnabled" minOccurs="0" />
+      <xs:element type="xs:string" name="TSGatewayAutoDetect" minOccurs="0" />
+      <xs:element type="xs:string" name="TSGatewayServer" minOccurs="0" />
+      <xs:element type="xs:string" name="TSGatewayBypassForLocal" minOccurs="0" />
+      <xs:element type="xs:string" name="TSGatewayLogonAuthMethod" minOccurs="0" />
+      <xs:element type="xs:string" name="resourceDrivesList" minOccurs="0" />
+      <xs:element type="xs:string" name="disableCompression" minOccurs="0" />
+      <xs:element type="xs:string" name="networkLevelAuthentication" minOccurs="0" />
+      <xs:element type="xs:string" name="TSGatewayUsername" minOccurs="0" />
+      <xs:element type="xs:base64Binary" name="TSGatewayEncryptedPassword" minOccurs="0" />
+      <xs:element type="xs:base64Binary" name="TSGatewaySalt" minOccurs="0" />
+      <xs:element type="xs:string" name="TSGatewayDomain" minOccurs="0" />
+      <xs:element type="xs:string" name="ScaleDesktopToFit" minOccurs="0" />
+      <xs:element type="xs:string" name="ScaleDesktopMaintainAspectRatio" minOccurs="0" />
+      <xs:element type="xs:string" name="SuspendBackgroundNetworkTraffic" minOccurs="0" />
+      <xs:element type="xs:string" name="Notes" minOccurs="0" />
+      <xs:element type="xs:string" name="FavID" minOccurs="0" />
+      <xs:element type="xs:int" name="TabColorHue" minOccurs="0" />
+      <xs:element type="xs:string" name="ScriptBeforeConnecting" minOccurs="0" />
+      <xs:element type="xs:string" name="ScriptAfterConnected" minOccurs="0" />
+      <xs:element type="xs:string" name="ScriptAfterDisconnected" minOccurs="0" />
+      <xs:element type="xs:string" name="ScriptEnabledBeforeConnecting" minOccurs="0" />
+      <xs:element type="xs:string" name="ScriptEnabledAfterConnected" minOccurs="0" />
+      <xs:element type="xs:string" name="ScriptEnabledAfterDisconnected" minOccurs="0" />
+      <xs:element type="xs:string" name="ScriptConnectAnywayOnError" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+</xs:schema>

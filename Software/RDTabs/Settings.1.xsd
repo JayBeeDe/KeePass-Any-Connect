@@ -1,0 +1,86 @@
+﻿<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="RDTabsApplicationConfiguration">
+		<xs:complexType>
+			<xs:all>
+				<xs:element type="xs:int" name="ConfigVersion" />
+				<xs:element name="Settings">
+					<xs:complexType>
+						<xs:all>
+							<xs:element type="xs:int" name="DoubleKeypressSuppressionInterval" minOccurs="0" />
+							<xs:element type="xs:string" name="AutomaticallyShowConsoleWindowOnOutput" minOccurs="0" />
+							<xs:element type="xs:string" name="EnableKeyboardHook" minOccurs="0" />
+							<xs:element type="xs:string" name="EnableMouseHook" minOccurs="0" />
+							<xs:element type="xs:string" name="LastComputerHash" minOccurs="0" />
+							<xs:element type="xs:string" name="ErrorReportGUID" minOccurs="0" />
+							<xs:element type="xs:int" name="WindowWidth" minOccurs="0" />
+							<xs:element type="xs:int" name="WindowHeight" minOccurs="0" />
+							<xs:element type="xs:string" name="WindowState" minOccurs="0" />
+							<xs:element type="xs:string" name="WindowFullScreen" minOccurs="0" />
+							<xs:element type="xs:int" name="WindowX" minOccurs="0" />
+							<xs:element type="xs:int" name="WindowY" minOccurs="0" />
+							<xs:element type="xs:string" name="FullScreenHideMenuBar" minOccurs="0" />
+							<xs:element type="xs:int" name="DetachedTabDefaultWidth" minOccurs="0" />
+							<xs:element type="xs:int" name="DetachedTabDefaultHeight" minOccurs="0" />
+							<xs:element type="xs:int" name="TabSelector_ThumbnailWidth" minOccurs="0" />
+							<xs:element type="xs:int" name="TabSelector_ThumbnailHeight" minOccurs="0" />
+							<xs:element type="xs:string" name="TabSelector_AutoSelectActiveTab" minOccurs="0" />
+							<xs:element type="xs:string" name="TabSelector_AlwaysHighlightKeyboardFocus" minOccurs="0" />
+							<xs:element type="xs:string" name="HideSplashScreen" minOccurs="0" />
+							<xs:element type="xs:string" name="ShowInTaskBar" minOccurs="0" />
+							<xs:element type="xs:string" name="ShowIconInTaskTray" minOccurs="0" />
+							<xs:element type="xs:string" name="HiddenMenuBarRequiesClickToReturn" minOccurs="0" />
+							<xs:element type="xs:string" name="Favorites_OpenInNewTab" minOccurs="0" />
+							<xs:element type="xs:string" name="Favorites_AutoConnect" minOccurs="0" />
+							<xs:element type="xs:string" name="Favorites_AppStartFolder" minOccurs="0" />
+							<xs:element type="xs:string" name="Favorites_AppStartFavorite" minOccurs="0" />
+							<xs:element type="xs:string" name="Favorites_AppStartEnabled" minOccurs="0" />
+							<xs:element type="xs:string" name="Favorites_AppStartAutoConnect" minOccurs="0" />
+							<xs:element type="xs:string" name="Favorites_OpenInNewTabException_ActiveTabNotConnected" minOccurs="0" />
+							<xs:element type="xs:string" name="Favorites_OpenInNewTabException_ActiveTabNeverConnected" minOccurs="0" />
+							<xs:element type="xs:int" name="EncryptionIterations" minOccurs="0" />
+							<xs:element type="xs:string" name="NewTabsOnRight" minOccurs="0" />
+							<xs:element type="xs:string" name="UseLeftNewTabButton" minOccurs="0" />
+							<xs:element type="xs:string" name="OnTabCloseSwitchFocusToTheRight" minOccurs="0" />
+							<xs:element type="xs:string" name="DisplayNameNewConnection" minOccurs="0" />
+							<xs:element type="xs:string" name="DisplayNameConnecting" minOccurs="0" />
+							<xs:element type="xs:string" name="DisplayNameConnected" minOccurs="0" />
+							<xs:element type="xs:string" name="DisplayNameDisconnected" minOccurs="0" />
+							<xs:element type="xs:string" name="LimitLengthOfTabTitle" minOccurs="0" />
+							<xs:element type="xs:int" name="TabTitleLength" minOccurs="0" />
+							<xs:element type="xs:string" name="MiddleClickClosesTab" minOccurs="0" />
+							<xs:element type="xs:string" name="AutomaticallyCloseTabOnDisconnection" minOccurs="0" />
+							<xs:element type="xs:string" name="AutoUpdateCheck" minOccurs="0" />
+							<xs:element type="xs:int" name="AutoUpdateDelay" minOccurs="0" />
+							<xs:element type="xs:int" name="AutoUpdateRecheckDelay" minOccurs="0" />
+							<xs:element type="xs:dateTime" name="Update_LastCheckTimestamp" minOccurs="0" />
+							<xs:element type="xs:string" name="Update_LastUpdateReady" minOccurs="0" />
+							<xs:element type="xs:string" name="Update_LastUpdateURL" minOccurs="0" />
+              <xs:element type="xs:string" name="Update_LastVersion" minOccurs="0" />
+              <xs:element type="xs:string" name="InlineAutocomplete" minOccurs="0" />
+							<xs:element type="xs:string" name="RemoveServerFromMRUOnFailure" minOccurs="0" />
+							<xs:element type="xs:int" name="RedialPauseInSeconds" minOccurs="0" />
+							<xs:element type="xs:int" name="MRULength" minOccurs="0" />
+							<xs:element type="xs:int" name="RedialRetryMax" minOccurs="0" />
+							<xs:element type="xs:int" name="ReconnectionPauseInSeconds" minOccurs="0" />
+							<xs:element type="xs:int" name="ReconnectionRetryMax" minOccurs="0" />
+							<xs:element type="xs:string" name="StealFocusAfterSuccessfullyConnecting" minOccurs="0" />
+							<xs:element type="xs:string" name="WarnTSGatewayDisabled" minOccurs="0" />
+							<xs:element type="xs:string" name="CacheConnectionProperties" minOccurs="0" />
+							<xs:element type="xs:string" name="UseMicrosoftAutoReconnector" minOccurs="0" />
+							<xs:element type="xs:string" name="SysKey_UseSysKeys" minOccurs="0" />
+							<xs:element type="xs:string" name="SysKey_ShowNotification" minOccurs="0" />
+							<xs:element type="xs:int" name="SysKey_HideDelay" minOccurs="0" />
+							<xs:element type="xs:string" name="SysKey_FirstKey" minOccurs="0" />
+							<xs:element type="xs:string" name="WarnClosingApplication" minOccurs="0" />
+							<xs:element type="xs:string" name="WarnClosingTab" minOccurs="0" />
+							<xs:element type="xs:string" name="WarnBeforeClosingAllTabsInATabPane" minOccurs="0" />
+							<xs:element type="xs:string" name="WarnBeforeClosingAllTabsExceptActiveTabInATabPane" minOccurs="0" />
+							<xs:element type="xs:string" name="WarnBeforeClosingAllTabsEverywhere" minOccurs="0" />
+							<xs:element type="xs:string" name="CreateFatalExceptionReportOnDesktop" minOccurs="0" />
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

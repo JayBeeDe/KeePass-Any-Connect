@@ -3,13 +3,13 @@
 	<Meta>
 		<PreferUserConfiguration>false</PreferUserConfiguration>
 		<OmitItemsWithDefaultValues>true</OmitItemsWithDefaultValues>
-		<DpiFactorX>1</DpiFactorX>
-		<DpiFactorY>1</DpiFactorY>
+		<DpiFactorX>1.25</DpiFactorX>
+		<DpiFactorY>1.25</DpiFactorY>
 	</Meta>
 	<Application>
-		<LastUpdateCheck>2018-04-17T13:34:16Z</LastUpdateCheck>
+		<LastUpdateCheck>2018-06-26T16:11:20Z</LastUpdateCheck>
 		<LastUsedFile>
-			<Path>..\..\Users\jdelon\OneDrive for Business\Administratif\FrequentisDB.kdbx</Path>
+			<Path>DataBase.kdbx</Path>
 			<CredProtMode>Obf</CredProtMode>
 			<CredSaveMode>NoSave</CredSaveMode>
 		</LastUsedFile>
@@ -17,7 +17,7 @@
 			<MaxItemCount>1</MaxItemCount>
 			<Items>
 				<ConnectionInfo>
-					<Path>..\..\Users\jdelon\OneDrive for Business\Administratif\FrequentisDB.kdbx</Path>
+					<Path>DataBase.kdbx</Path>
 					<CredProtMode>Obf</CredProtMode>
 					<CredSaveMode>NoSave</CredSaveMode>
 				</ConnectionInfo>
@@ -38,10 +38,10 @@
 	</Application>
 	<Logging />
 	<MainWindow>
-		<X>1008</X>
+		<X>1260</X>
 		<Y>0</Y>
-		<Width>536</Width>
-		<Height>420</Height>
+		<Width>670</Width>
+		<Height>525</Height>
 		<Maximized>true</Maximized>
 		<SplitterHorizontalFrac>0.053763440860215048</SplitterHorizontalFrac>
 		<SplitterVerticalFrac>0.17864583333333334</SplitterVerticalFrac>
@@ -61,20 +61,20 @@
 		<EntryListColumnCollection>
 			<Column>
 				<Type>Title</Type>
-				<Width>344</Width>
+				<Width>430</Width>
 			</Column>
 			<Column>
 				<Type>UserName</Type>
-				<Width>360</Width>
+				<Width>450</Width>
 			</Column>
 			<Column>
 				<Type>Password</Type>
-				<Width>117</Width>
+				<Width>146</Width>
 				<HideWithAsterisks>true</HideWithAsterisks>
 			</Column>
 			<Column>
 				<Type>Url</Type>
-				<Width>414</Width>
+				<Width>518</Width>
 			</Column>
 		</EntryListColumnCollection>
 		<EntryListColumnDisplayOrder>0 1 2 3</EntryListColumnDisplayOrder>
@@ -164,7 +164,7 @@
 		</SearchParameters>
 		<KeySources>
 			<Association>
-				<DatabasePath>..\..\Users\jdelon\OneDrive for Business\Administratif\FrequentisDB.kdbx</DatabasePath>
+				<DatabasePath>DataBase.kdbx</DatabasePath>
 				<Password>true</Password>
 			</Association>
 		</KeySources>
@@ -308,6 +308,16 @@
 					<Scheme>wb</Scheme>
 					<UrlOverride>cmd:// "C:\Program Files (x86)\Mikrotik\winbox.exe" {URL:RMVSCM}</UrlOverride>
 				</Override>
+				<Override>
+					<Enabled>true</Enabled>
+					<Scheme>ftp</Scheme>
+					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SCP.ps1" -ip "{URL:HOST}" -port {URL:PORT} -username "{USERNAME}" -password "{PASSWORD}" -proto "FTP"</UrlOverride>
+				</Override>
+				<Override>
+					<Enabled>true</Enabled>
+					<Scheme>tftp</Scheme>
+					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}_{URL:PORT}_{USERNAME}_{PASSWORD}-{NOTES}" -mode "ftp"</UrlOverride>
+				</Override>
 			</CustomOverrides>
 		</UrlSchemeOverrides>
 		<AutoTypeAllowInterleaved>true</AutoTypeAllowInterleaved>
@@ -334,7 +344,7 @@
 		</Item>
 		<Item>
 			<Key>KeePassHttp_AlwaysAllowUpdates</Key>
-			<Value>true</Value>
+			<Value>false</Value>
 		</Item>
 		<Item>
 			<Key>KeePassHttp_SearchInAllOpenedDatabases</Key>

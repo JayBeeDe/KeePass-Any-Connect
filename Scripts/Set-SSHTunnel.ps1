@@ -13,10 +13,19 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$config=Import-Clixml "$($scriptPath)\Config.xml"
-$softPath=$($config | Where-Object {$_.Proto -eq "SSH"}).plinkPath
-if($($config | Where-Object {$_.Proto -eq "SSH"}).PathAbsolute -ne $true){
-    $softPath="$scriptPath\$softPath"
+[xml]$XmlDocument=Get-Content -Path "$($scriptPath)\Config.xml"
+
+$soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/app" | ForEach-Object { $_.Node.value }
+$softPath="$($scriptPath)\$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/path" | ForEach-Object { $_.Node.value })"
+
+$defaultPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultPort" | ForEach-Object { $_.Node.value })
+$defaultUsername=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultUsername" | ForEach-Object { $_.Node.value })
+if($defaultUsername -eq $null){
+  $defaultUsername=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultUsername" | ForEach-Object { $_.Node.value })
+}
+$defaultPassword=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultPassword" | ForEach-Object { $_.Node.value })
+if($defaultPassword -eq $null){
+  $defaultPassword=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultPassword" | ForEach-Object { $_.Node.value })
 }
 
 $global:currentScript=$MyInvocation.MyCommand.Name
@@ -30,7 +39,9 @@ function Get-RandomPort(){
       Import-Module "$($global:currentLocation)\modules\$($moduleName)" -Force -ErrorAction Stop -Scope Local
       do{
           $portUsed=$false
-          $tunnelPort=Get-Random -Minimum $($config | Where-Object {$_.Proto -eq "SSH"}).minTunnelPort -Maximum $($config | Where-Object {$_.Proto -eq "SSH"}).maxTunnelPort
+          $minTunnelPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/tunnel/port/min" | ForEach-Object { $_.Node.value })
+          $maxTunnelPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/tunnel/port/max" | ForEach-Object { $_.Node.value })
+          $tunnelPort=Get-Random -Minimum $minTunnelPort -Maximum $maxTunnelPort
           foreach ($usedPort in Get-NetworkStatistics | Select LocalPort) {
               if ($usedPort.LocalPort -eq $tunnelPort){
                   $portUsed=$true
@@ -68,17 +79,17 @@ if($multiTunnelsArgs -ne ""){
         $connObj | Add-Member -type NoteProperty -name url -Value $curSubArr[0]
       }
       if($($curSubArr[1] -replace "[\s|\n|\r]",'') -eq "" -or $curSubArr[1] -eq -1){
-        $connObj | Add-Member -type NoteProperty -name port -Value $($config | Where-Object {$_.Proto -eq "SSH"}).defaultPort
+        $connObj | Add-Member -type NoteProperty -name port -Value $defaultPort
       }else{
         $connObj | Add-Member -type NoteProperty -name port -Value $curSubArr[1]
       }
       if($($curSubArr[2] -replace "[\s|\n|\r]",'') -eq ""){
-        $connObj | Add-Member -type NoteProperty -name username -Value $($config | Where-Object {$_.Proto -eq "SSH"}).defaultUsername
+        $connObj | Add-Member -type NoteProperty -name username -Value $defaultUsername
       }else{
         $connObj | Add-Member -type NoteProperty -name username -Value $curSubArr[2]
       }
       if($($curSubArr[3] -replace "[\s|\n|\r]",'') -eq ""){
-        $connObj | Add-Member -type NoteProperty -name password -Value $($config | Where-Object {$_.Proto -eq "SSH"}).defaultPassword
+        $connObj | Add-Member -type NoteProperty -name password -Value $defaultPassword
       }else{
         $connObj | Add-Member -type NoteProperty -name password -Value $curSubArr[3]
       }
@@ -114,6 +125,10 @@ if($multiTunnelsArgs -ne ""){
     Write-Host "&$($global:currentLocation)\Set-SCP.ps1 -ip localhost -username $($lastConnObj.username) -password $($lastConnObj.password) -port $($tunnelPort)"
     &"$($global:currentLocation)\Set-SCP.ps1" -ip "localhost" -username "$($lastConnObj.username)" -password "$($lastConnObj.password)" -port "$($tunnelPort)"
     #Start-Process -FilePath $($winSCPPath) -ArgumentList "scp://$($lastConnObj.username):$($lastConnObj.password)@localhost:$($tunnelPort)" -WindowStyle Maximized
+  }elseif($mode -eq "ftp"){
+    Write-Host "&$($global:currentLocation)\Set-SCP.ps1 -ip localhost -username $($lastConnObj.username) -password $($lastConnObj.password) -port $($tunnelPort)" -proto "FTP"
+    &"$($global:currentLocation)\Set-SCP.ps1" -ip "localhost" -username "$($lastConnObj.username)" -password "$($lastConnObj.password)" -port "$($tunnelPort)" -proto "FTP"
+    #Start-Process -FilePath $($winSCPPath) -ArgumentList "scp://$($lastConnObj.username):$($lastConnObj.password)@localhost:$($tunnelPort)" -WindowStyle Maximized
   }elseif($mode -eq "vnc"){
     Write-Host "&$($global:currentLocation)\Set-VNC.ps1 -ip localhost -password $($lastConnObj.password) -port $($tunnelPort)"
     &"$($global:currentLocation)\Set-VNC.ps1" -ip "localhost" -port "$($tunnelPort)"
@@ -139,18 +154,17 @@ if($multiTunnelsArgs -ne ""){
   if($ip2 -eq ""){
       Throw "The -ip2 argument must be set"
   }
-
   if($port1 -eq ""){
-      $port1=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPort
+      $port1=$defaultPort
   }
   if($port2 -eq ""){
-      $port2=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPort
+      $port2=$defaultPort
   }
   if($username1 -eq ""){
-      $username1=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultUsername
+      $username1=$defaultUsername
   }
   if($password1 -eq ""){
-      $password1=$($config | Where-Object {$_.Proto -eq "SSH"}).defaultPassword
+      $password1=$defaultPassword
   }
   if($username2 -eq ""){
       $username2=$username1
@@ -169,6 +183,9 @@ if($multiTunnelsArgs -ne ""){
   if($mode -eq "scp"){
     &"$($global:currentLocation)\Set-SCP.ps1" -ip "localhost" -username "$($username2)" -password "$($password2)" -port "$($tunnelPort)"
     #Start-Process -FilePath $($winSCPPath) -ArgumentList "scp://$($lastConnObj.username):$($lastConnObj.password)@localhost:$($tunnelPort)" -WindowStyle Maximized
+  elseif($mode -eq "ftp"){
+    &"$($global:currentLocation)\Set-SCP.ps1" -ip "localhost" -username "$($username2)" -password "$($password2)" -port "$($tunnelPort)" -proto "FTP"
+  #Start-Process -FilePath $($winSCPPath) -ArgumentList "scp://$($lastConnObj.username):$($lastConnObj.password)@localhost:$($tunnelPort)" -WindowStyle Maximized
   }elseif($mode -eq "vnc"){
     &"$($global:currentLocation)\Set-VNC.ps1" -ip "localhost" -password "$($password2)" -port "$($tunnelPort)"
     #Start-Process -FilePath .\Set-VNC.ps1 -ip "localhost" -port $($tunnelPort) -password "$($lastConnObj.password)" -WindowStyle Maximized

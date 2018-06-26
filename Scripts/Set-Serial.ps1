@@ -4,21 +4,20 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$config=Import-Clixml "$($scriptPath)\Config.xml"
-$softPath=$($config | Where-Object {$_.Proto -eq "Serial"}).Path
-if($($config | Where-Object {$_.Proto -eq "Serial"}).PathAbsolute -ne $true){
-    $softPath="$scriptPath\$softPath"
-}
+[xml]$XmlDocument=Get-Content -Path "$($scriptPath)\Config.xml"
+$soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/Serial/app" | ForEach-Object { $_.Node.value }
+$softPath="$($scriptPath)\$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/path" | ForEach-Object { $_.Node.value })"
 
 if(-Not($speed -gt 1000)){
-    $speed=$($config | Where-Object {$_.Proto -eq "Serial"}).defaultSpeed
+    $speed=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/Serial/defaultSpeed" | ForEach-Object { $_.Node.value })
 }
-if($($config | Where-Object {$_.Proto -eq "Serial"}).superPuttyMode -eq $true){
+if($soft -eq "SuperPutty"){
     $specArg=""
 }else{
     $specArg=""
 }
-if($($config | Where-Object {$_.Proto -eq "Serial"}).puttyProfile -eq ""){
+$puttyProfile=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/Serial/profile" | ForEach-Object { $_.Node.value })
+if($puttyProfile -eq $null){
     $specArg2=""
 }else{
     $specArg2="-load $(($config | Where-Object {$_.Proto -eq "Serial"}).puttyProfile)"

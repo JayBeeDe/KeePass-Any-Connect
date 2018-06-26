@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<Settings>
+  <General>
+    <defaultUsername value="root" />
+    <defaultPassword value="defaultGeneralPassword" />
+  </General>
+  <Proto>
+    <SSH>
+      <app value="SuperPutty" />
+      <defaultPort value="22" />
+      <profile value="RPI" />
+      <defaultPassword value="defaultSSHSpecPassword" />
+      <tunnel>
+        <port>
+          <min value="1100" />
+          <max value="20000" />
+        </port>
+      </tunnel>
+    </SSH>
+    <Serial>
+      <app value="Putty" />
+      <defaultSpeed value="9600" />
+      <profile value="Log" />
+    </Serial>
+    <VNC>
+      <app value="TightVNC" />
+      <defaultPort value="5901" />
+    </VNC>
+    <RDP>
+      <app value="RDTabs" />
+      <defaultPort value="5389" />
+    </RDP>
+    <SCP>
+      <app value="WinSCP" />
+      <defaultPort value="22" />
+    </SCP>
+    <FTP>
+      <app value="WinSCP" />
+      <defaultPort value="21" />
+    </FTP>
+  </Proto>
+  <App>
+    <Putty>
+      <path value="..\Software\Putty\putty.exe" />
+    </Putty>
+    <SuperPutty>
+      <path value="..\Software\SuperPutty\SuperPutty.exe" />
+    </SuperPutty>
+    <WinSCP>
+      <path value="..\Software\WinSCP\WinSCP.exe" />
+    </WinSCP>
+    <TightVNC>
+      <path value="..\Software\TightVNC\tvnviewer.exe" />
+    </TightVNC>
+    <RDTabs>
+      <path value="..\Software\RDTabs\RDTabs.exe" />
+    </RDTabs>
+  </App>
+</Settings>

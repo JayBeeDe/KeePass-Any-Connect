@@ -2,27 +2,40 @@ Param(
   [string]$ip,
   [int]$port,
   [string]$username,
-  [string]$password
+  [string]$password,
+  [string]$proto
 )
 
-$scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$config=Import-Clixml "$($scriptPath)\Config.xml"
-$softPath=$($config | Where-Object {$_.Proto -eq "SCP"}).Path
-if($($config | Where-Object {$_.Proto -eq "SCP"}).PathAbsolute -ne $true){
-    $softPath="$scriptPath\$softPath"
+if($proto -ne "FTP"){
+    $proto="SCP"
+    $prot="scp"
+}else{
+    $prot="ftp"
 }
 
+$scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
+[xml]$XmlDocument=Get-Content -Path "$($scriptPath)\Config.xml"
+
+$soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/$($proto)/app" | ForEach-Object { $_.Node.value }
+$softPath="$($scriptPath)\$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/path" | ForEach-Object { $_.Node.value })"
+
 if($port -eq "" -or $port -eq -1){
-    $port=$($config | Where-Object {$_.Proto -eq "SCP"}).defaultPort
+    $port=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/$($proto)/defaultPort" | ForEach-Object { $_.Node.value })
 }
 if($username -eq ""){
-    $username=$($config | Where-Object {$_.Proto -eq "SCP"}).defaultUsername
+  $username=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/$($proto)/defaultUsername" | ForEach-Object { $_.Node.value })
+  if($username -eq $null){
+    $username=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultUsername" | ForEach-Object { $_.Node.value })
+  }
 }
 if($password -eq ""){
-    $password=$($config | Where-Object {$_.Proto -eq "SCP"}).defaultPassword
+  $password=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/$($proto)/defaultPassword" | ForEach-Object { $_.Node.value })
+  if($password -eq $null){
+    $password=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultPassword" | ForEach-Object { $_.Node.value })
+  }
 }
 if($ip -eq ""){
   Throw "You must specify an ip address or a host!"
 }
 
-Start-Process -FilePath $($softPath) -ArgumentList "scp://$($username):$($password)@$($ip):$($port)" -WindowStyle Maximized
+Start-Process -FilePath $($softPath) -ArgumentList "$($prot)://$($username):$($password)@$($ip):$($port)" -WindowStyle Maximized

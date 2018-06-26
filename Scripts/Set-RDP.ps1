@@ -8,10 +8,13 @@ Param(
 )
 
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
-$config=Import-Clixml "$($scriptPath)\Config.xml"
-$softPath=$($config | Where-Object {$_.Proto -eq "RDP"}).Path
-if($($config | Where-Object {$_.Proto -eq "RDP"}).PathAbsolute -ne $true){
-    $softPath="$scriptPath\$softPath"
+[xml]$XmlDocument=Get-Content -Path "$($scriptPath)\Config.xml"
+
+$soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/RDP/app" | ForEach-Object { $_.Node.value }
+if ($soft -eq $null){
+  $softPath="C:\Windows\System32\mstsc.exe"
+} else {
+  $softPath="$($scriptPath)\$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/path" | ForEach-Object { $_.Node.value })"
 }
 
 if($VM -ne ""){
@@ -56,10 +59,16 @@ if($VM -ne ""){
 }
 
 if($username -eq ""){
-  $username=$($config | Where-Object {$_.Proto -eq "RDP"}).defaultUsername
+  $username=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/RDP/defaultUsername" | ForEach-Object { $_.Node.value })
+  if($username -eq $null){
+    $username=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultUsername" | ForEach-Object { $_.Node.value })
+  }
 }
 if($password -eq ""){
-  $password=$($config | Where-Object {$_.Proto -eq "RDP"}).defaultPassword
+  $password=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/RDP/defaultPassword" | ForEach-Object { $_.Node.value })
+  if($password -eq $null){
+    $password=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultPassword" | ForEach-Object { $_.Node.value })
+  }
 }
 if($ip -eq ""){
   Throw "You must specify an ip address or a host!"
@@ -70,7 +79,7 @@ if($port -ne "" -and $port -ne -1){
     if($($config | Where-Object {$_.Proto -eq "RDP"}).defaultPort -eq 3389){
       $prefPort=""
     }else{
-      $prefPort=":$($config | Where-Object {$_.Proto -eq "RDP"}).defaultPort"
+      $prefPort=":$($XmlDocument | Select-Xml -XPath "/Settings/Proto/RDP/defaultPort" | ForEach-Object { $_.Node.value })"
     }
 }
 if($fullScreen -eq "true"){
@@ -79,4 +88,7 @@ if($fullScreen -eq "true"){
     $prefFullScreen=""
 }
 
-cmd /c "cmdkey /generic:TERMSRV/$($ip) /user:$($username) /pass:$($password) && $($softPath) $($prefFullScreen) /v:$($ip)$($prefPort) && timeout /t 0 /nobreak && cmdkey /delete:TERMSRV/$($ip) && exit"
+if ($soft -eq $null){
+  cmd /c "cmdkey /generic:TERMSRV/$($ip) /user:$($username) /pass:$($password) && $($softPath) $($prefFullScreen) /v:$($ip)$($prefPort) && timeout /t 0 /nobreak && cmdkey /delete:TERMSRV/$($ip) && exit"
+}
+#not implemented otherwise
