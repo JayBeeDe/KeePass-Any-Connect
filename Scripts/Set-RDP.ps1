@@ -7,14 +7,42 @@ Param(
   [string]$VM=""
 )
 
+function preventSoftFailure([int]$multipleOpeningTimeout,[string]$soft,[string]$subSoft){
+  if ($multipleOpeningTimeout -ne $null){
+    if ($multipleOpeningTimeout -gt 0){
+      try{
+        if ($subSoft -ne $null){
+          $res=(Get-Process -Name $subSoft -ErrorAction Stop | Select Name, StartTime | sort StartTime -Descending)[0].StartTime
+        }else{
+          $res=(Get-Process -Name $soft -ErrorAction Stop | Select Name, StartTime | sort StartTime -Descending)[0].StartTime
+        }
+        if ($res -ne $null){
+          if ($res -gt 0){
+            $res=$($res).AddSeconds($multipleOpeningTimeout)
+            if ($(Get-Date) -le $res){
+              write-host "Waiting time $res sec to prevent $soft crash"
+              while ($(Get-Date) -le $res){
+                sleep 1
+              }
+            }
+          }
+        }
+      }catch{}
+    }
+  }
+}
+
 $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
 [xml]$XmlDocument=Get-Content -Path "$($scriptPath)\Config.xml"
+$debugMode=$($XmlDocument | Select-Xml -XPath "/Settings/General/debugMode" | ForEach-Object { $_.Node.value })
 
 $soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/RDP/app" | ForEach-Object { $_.Node.value }
 if ($soft -eq $null){
   $softPath="C:\Windows\System32\mstsc.exe"
 } else {
   $softPath="$($scriptPath)\$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/path" | ForEach-Object { $_.Node.value })"
+  $multipleOpeningTimeout="$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/multipleOpeningTimeout" | ForEach-Object { $_.Node.value })"
+  $subSoft="$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/subApp" | ForEach-Object { $_.Node.value })"
 }
 
 if($VM -ne ""){
@@ -84,11 +112,19 @@ if($port -ne "" -and $port -ne -1){
 }
 if($fullScreen -eq "true"){
     $prefFullScreen="/multimon /f"
+    write-host "fullScreen has been set"
 }else{
     $prefFullScreen=""
 }
 
+preventSoftFailure $multipleOpeningTimeout $subSoft $soft
+
 if ($soft -eq $null){
+  write-host "cmd /c cmdkey /generic:TERMSRV/$($ip) /user:$($username) /pass:******** && $($softPath) $($prefFullScreen) /v:$($ip)$($prefPort) && timeout /t 0 /nobreak && cmdkey /delete:TERMSRV/$($ip) && exit"
   cmd /c "cmdkey /generic:TERMSRV/$($ip) /user:$($username) /pass:$($password) && $($softPath) $($prefFullScreen) /v:$($ip)$($prefPort) && timeout /t 0 /nobreak && cmdkey /delete:TERMSRV/$($ip) && exit"
 }
 #not implemented otherwise
+
+if ($debugMode -eq "true"){
+  sleep 150
+}

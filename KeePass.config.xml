@@ -3,11 +3,11 @@
 	<Meta>
 		<PreferUserConfiguration>false</PreferUserConfiguration>
 		<OmitItemsWithDefaultValues>true</OmitItemsWithDefaultValues>
-		<DpiFactorX>1.25</DpiFactorX>
-		<DpiFactorY>1.25</DpiFactorY>
+		<DpiFactorX>1.5</DpiFactorX>
+		<DpiFactorY>1.5</DpiFactorY>
 	</Meta>
 	<Application>
-		<LastUpdateCheck>2018-06-26T16:11:20Z</LastUpdateCheck>
+		<LastUpdateCheck>2018-10-20T08:50:00Z</LastUpdateCheck>
 		<LastUsedFile>
 			<Path>DataBase.kdbx</Path>
 			<CredProtMode>Obf</CredProtMode>
@@ -35,16 +35,20 @@
 		<TriggerSystem>
 			<Triggers />
 		</TriggerSystem>
+		<PluginCompatibility>
+			<Item>@qywquwCBlqYUJIh+ZG4aK57JSJgzlE6r2L8PDnU2m6c=@2.40.0.17978@1</Item>
+			<Item>@RfRsWK6oUwKuv2WlewdeWdM8VPvfDdOKfmLlzXcXEuY=@2.40.0.17978@1</Item>
+		</PluginCompatibility>
 	</Application>
 	<Logging />
 	<MainWindow>
-		<X>1260</X>
-		<Y>0</Y>
-		<Width>670</Width>
-		<Height>525</Height>
+		<X>701</X>
+		<Y>179</Y>
+		<Width>804</Width>
+		<Height>630</Height>
 		<Maximized>true</Maximized>
-		<SplitterHorizontalFrac>0.053763440860215048</SplitterHorizontalFrac>
-		<SplitterVerticalFrac>0.17864583333333334</SplitterVerticalFrac>
+		<SplitterHorizontalFrac>0.041202672605790649</SplitterHorizontalFrac>
+		<SplitterVerticalFrac>0.1609375</SplitterVerticalFrac>
 		<Layout>Default</Layout>
 		<CloseButtonMinimizesWindow>true</CloseButtonMinimizesWindow>
 		<EscMinimizesToTray>true</EscMinimizesToTray>
@@ -61,23 +65,24 @@
 		<EntryListColumnCollection>
 			<Column>
 				<Type>Title</Type>
-				<Width>430</Width>
+				<Width>427</Width>
 			</Column>
 			<Column>
 				<Type>UserName</Type>
-				<Width>450</Width>
+				<Width>255</Width>
 			</Column>
 			<Column>
 				<Type>Password</Type>
-				<Width>146</Width>
+				<Width>175</Width>
 				<HideWithAsterisks>true</HideWithAsterisks>
 			</Column>
 			<Column>
 				<Type>Url</Type>
-				<Width>518</Width>
+				<Width>620</Width>
 			</Column>
 		</EntryListColumnCollection>
 		<EntryListColumnDisplayOrder>0 1 2 3</EntryListColumnDisplayOrder>
+		<EntryListAlternatingBgColor>-2368549</EntryListAlternatingBgColor>
 		<EntryListShowDerefDataAndRefs>false</EntryListShowDerefDataAndRefs>
 		<ListSorting>
 			<Column>0</Column>
@@ -86,6 +91,7 @@
 	</MainWindow>
 	<UI>
 		<TrayIcon>
+			<GrayIcon>true</GrayIcon>
 			<SingleClickDefault>true</SingleClickDefault>
 		</TrayIcon>
 		<Hiding>
@@ -152,7 +158,7 @@
 		<LastUsedProfile>
 			<Name>(Custom)</Name>
 			<GeneratorType>CharSet</GeneratorType>
-			<Length>8</Length>
+			<Length>12</Length>
 			<CharSetRanges>ULD_______</CharSetRanges>
 		</LastUsedProfile>
 		<UserProfiles />
@@ -163,6 +169,10 @@
 			<ComparisonMode>InvariantCultureIgnoreCase</ComparisonMode>
 		</SearchParameters>
 		<KeySources>
+			<Association>
+				<DatabasePath>..\..\Users\jdelon\OneDrive for Business\Administratif\FrequentisDB.kdbx</DatabasePath>
+				<Password>true</Password>
+			</Association>
 			<Association>
 				<DatabasePath>DataBase.kdbx</DatabasePath>
 				<Password>true</Password>
@@ -241,12 +251,12 @@
 				<Override>
 					<Enabled>true</Enabled>
 					<Scheme>cmd</Scheme>
-					<UrlOverride>cmd://{URL:RMVSCM}</UrlOverride>
+					<UrlOverride>cmd://cmd /K cd / &amp;&amp; cls &amp;&amp; {URL:RMVSCM}</UrlOverride>
 				</Override>
 				<Override>
 					<Enabled>true</Enabled>
 					<Scheme>ps</Scheme>
-					<UrlOverride>cmd://powershell.exe -noexit {URL:RMVSCM}</UrlOverride>
+					<UrlOverride>cmd://powershell -WindowStyle Maximized -noexit {URL:RMVSCM}</UrlOverride>
 				</Override>
 				<Override>
 					<Enabled>true</Enabled>
@@ -317,6 +327,11 @@
 					<Enabled>true</Enabled>
 					<Scheme>tftp</Scheme>
 					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}_{URL:PORT}_{USERNAME}_{PASSWORD}-{NOTES}" -mode "ftp"</UrlOverride>
+				</Override>
+				<Override>
+					<Enabled>true</Enabled>
+					<Scheme>rps</Scheme>
+					<UrlOverride>cmd://powershell -WindowStyle Maximized -noexit -file "{APPDIR}\Scripts\Set-RPS.ps1" -ip "{URL:HOST}" -port {URL:PORT} -username "{USERNAME}" -password "{PASSWORD}"</UrlOverride>
 				</Override>
 			</CustomOverrides>
 		</UrlSchemeOverrides>

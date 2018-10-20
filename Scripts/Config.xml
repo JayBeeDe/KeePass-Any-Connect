@@ -3,6 +3,7 @@
   <General>
     <defaultUsername value="root" />
     <defaultPassword value="defaultGeneralPassword" />
+    <debugMode value="false" />
   </General>
   <Proto>
     <SSH>
@@ -28,8 +29,15 @@
     </VNC>
     <RDP>
       <app value="RDTabs" />
+      <defaultUsername value="\Administrator" />
       <defaultPort value="5389" />
     </RDP>
+    <RPS>
+      <app value="powershell" />
+      <defaultUsername value="\Administrator" />
+      <defaultPort value="5985" />
+      <profile value="" />
+    </RPS>
     <SCP>
       <app value="WinSCP" />
       <defaultPort value="22" />
@@ -45,6 +53,8 @@
     </Putty>
     <SuperPutty>
       <path value="..\Software\SuperPutty\SuperPutty.exe" />
+      <subApp value="Putty" />
+      <multipleOpeningTimeout value="10" />
     </SuperPutty>
     <WinSCP>
       <path value="..\Software\WinSCP\WinSCP.exe" />
