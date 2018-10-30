@@ -105,9 +105,11 @@ if($port -ne "" -and $port -ne -1){
     $prefPort=":$($port)"
 }else{
     if($($config | Where-Object {$_.Proto -eq "RDP"}).defaultPort -eq 3389){
+      $port=3389
       $prefPort=""
     }else{
-      $prefPort=":$($XmlDocument | Select-Xml -XPath "/Settings/Proto/RDP/defaultPort" | ForEach-Object { $_.Node.value })"
+      $port="$($XmlDocument | Select-Xml -XPath "/Settings/Proto/RDP/defaultPort" | ForEach-Object { $_.Node.value })"
+      $prefPort=":$($port)"
     }
 }
 if($fullScreen -eq "true"){
@@ -122,8 +124,10 @@ preventSoftFailure $multipleOpeningTimeout $subSoft $soft
 if ($soft -eq $null){
   write-host "cmd /c cmdkey /generic:TERMSRV/$($ip) /user:$($username) /pass:******** && $($softPath) $($prefFullScreen) /v:$($ip)$($prefPort) && timeout /t 0 /nobreak && cmdkey /delete:TERMSRV/$($ip) && exit"
   cmd /c "cmdkey /generic:TERMSRV/$($ip) /user:$($username) /pass:$($password) && $($softPath) $($prefFullScreen) /v:$($ip)$($prefPort) && timeout /t 0 /nobreak && cmdkey /delete:TERMSRV/$($ip) && exit"
+}else{
+  write-host "Starting process $($softPath) START SERVER $($ip) /u:$($username) /p:******** /o:$($port)"
+  Start-Process -FilePath $($softPath) -ArgumentList "START SERVER $($ip) /u:$($username) /p:$($password) /o:$($port)" -WindowStyle Maximized
 }
-#not implemented otherwise
 
 if ($debugMode -eq "true"){
   sleep 150

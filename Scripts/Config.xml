@@ -30,7 +30,7 @@
     <RDP>
       <app value="RDTabs" />
       <defaultUsername value="\Administrator" />
-      <defaultPort value="5389" />
+      <defaultPort value="3389" />
     </RDP>
     <RPS>
       <app value="powershell" />
