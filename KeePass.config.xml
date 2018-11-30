@@ -271,7 +271,7 @@
 				<Override>
 					<Enabled>true</Enabled>
 					<Scheme>tssh</Scheme>
-					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}_{URL:PORT}_{USERNAME}_{PASSWORD}-{NOTES}"</UrlOverride>
+					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}:{URL:PORT},{USERNAME},{PASSWORD};{NOTES}" -mode "ssh"</UrlOverride>
 				</Override>
 				<Override>
 					<Enabled>true</Enabled>
@@ -291,12 +291,12 @@
 				<Override>
 					<Enabled>true</Enabled>
 					<Scheme>tscp</Scheme>
-					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}_{URL:PORT}_{USERNAME}_{PASSWORD}-{NOTES}" -mode "scp"</UrlOverride>
+					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}:{URL:PORT},{USERNAME},{PASSWORD};{NOTES}" -mode "scp"</UrlOverride>
 				</Override>
 				<Override>
 					<Enabled>true</Enabled>
 					<Scheme>tvnc</Scheme>
-					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}_{URL:PORT}_{USERNAME}_{PASSWORD}-{NOTES}" -mode "vnc"</UrlOverride>
+					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}:{URL:PORT},{USERNAME},{PASSWORD};{NOTES}" -mode "vnc"</UrlOverride>
 				</Override>
 				<Override>
 					<Enabled>true</Enabled>
@@ -326,7 +326,7 @@
 				<Override>
 					<Enabled>true</Enabled>
 					<Scheme>tftp</Scheme>
-					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}_{URL:PORT}_{USERNAME}_{PASSWORD}-{NOTES}" -mode "ftp"</UrlOverride>
+					<UrlOverride>cmd://powershell -NoProfile -WindowStyle Minimized -noninteractive -file "{APPDIR}\Scripts\Set-SSHTunnel.ps1" -multiTunnelsArgs "{URL:HOST}:{URL:PORT},{USERNAME},{PASSWORD};{NOTES}" -mode "ftp"</UrlOverride>
 				</Override>
 				<Override>
 					<Enabled>true</Enabled>
