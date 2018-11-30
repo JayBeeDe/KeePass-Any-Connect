@@ -11,13 +11,19 @@
       <defaultPort value="22" />
       <profile value="RPI" />
       <defaultPassword value="defaultSSHSpecPassword" />
+    </SSH>
+    <SSHTunnel>
+      <app value="Plink" />
+      <defaultPort value="22" />
+      <profile value="RPI" />
+      <defaultPassword value="defaultSSHSpecPassword" />
       <tunnel>
         <port>
           <min value="1100" />
           <max value="20000" />
         </port>
       </tunnel>
-    </SSH>
+    </SSHTunnel>
     <Serial>
       <app value="Putty" />
       <defaultSpeed value="9600" />
@@ -51,6 +57,9 @@
     <Putty>
       <path value="..\Software\Putty\putty.exe" />
     </Putty>
+    <Plink>
+      <path value="..\Software\Putty\plink.exe" />
+    </Plink>
     <SuperPutty>
       <path value="..\Software\SuperPutty\SuperPutty.exe" />
       <subApp value="Putty" />

@@ -43,8 +43,8 @@ function Get-RandomPort(){
       Import-Module "$($global:currentLocation)\modules\$($moduleName)" -Force -ErrorAction Stop -Scope Local
       do{
           $portUsed=$false
-          $minTunnelPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/tunnel/port/min" | ForEach-Object { $_.Node.value })
-          $maxTunnelPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/tunnel/port/max" | ForEach-Object { $_.Node.value })
+          $minTunnelPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSHTunnel/tunnel/port/min" | ForEach-Object { $_.Node.value })
+          $maxTunnelPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSHTunnel/tunnel/port/max" | ForEach-Object { $_.Node.value })
           $tunnelPort=Get-Random -Minimum $minTunnelPort -Maximum $maxTunnelPort
           foreach ($usedPort in Get-NetworkStatistics | Select LocalPort) {
               if ($usedPort.LocalPort -eq $tunnelPort){
@@ -64,17 +64,17 @@ $scriptPath=$(split-path -parent $MyInvocation.MyCommand.Definition)
 [xml]$XmlDocument=Get-Content -Path "$($scriptPath)\Config.xml"
 $debugMode=$($XmlDocument | Select-Xml -XPath "/Settings/General/debugMode" | ForEach-Object { $_.Node.value })
 
-$soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/app" | ForEach-Object { $_.Node.value }
+$soft=$XmlDocument | Select-Xml -XPath "/Settings/Proto/SSHTunnel/app" | ForEach-Object { $_.Node.value }
 $softPath="$($scriptPath)\$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/path" | ForEach-Object { $_.Node.value })"
 $multipleOpeningTimeout="$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/multipleOpeningTimeout" | ForEach-Object { $_.Node.value })"
 $subSoft="$($XmlDocument | Select-Xml -XPath "/Settings/App/$($soft)/subApp" | ForEach-Object { $_.Node.value })"
 
-$defaultPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultPort" | ForEach-Object { $_.Node.value })
-$defaultUsername=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultUsername" | ForEach-Object { $_.Node.value })
+$defaultPort=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSHTunnel/defaultPort" | ForEach-Object { $_.Node.value })
+$defaultUsername=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSHTunnel/defaultUsername" | ForEach-Object { $_.Node.value })
 if($defaultUsername -eq $null){
   $defaultUsername=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultUsername" | ForEach-Object { $_.Node.value })
 }
-$defaultPassword=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSH/defaultPassword" | ForEach-Object { $_.Node.value })
+$defaultPassword=$($XmlDocument | Select-Xml -XPath "/Settings/Proto/SSHTunnel/defaultPassword" | ForEach-Object { $_.Node.value })
 if($defaultPassword -eq $null){
   $defaultPassword=$($XmlDocument | Select-Xml -XPath "/Settings/General/defaultPassword" | ForEach-Object { $_.Node.value })
 }
@@ -85,15 +85,16 @@ trap {sleep 1}
 
 $multiTunnelsArgs=$multiTunnelsArgs.Replace("`r","")
 $multiTunnelsArgs=$multiTunnelsArgs.Replace("`n","")
+if ($debugMode -eq "true"){
+  Write-Host $multiTunnelsArgs
+}
 
 if($multiTunnelsArgs -ne ""){
   $arrConnObj=@()
-  $arr=$multiTunnelsArgs -split "-"
+  $arr=$multiTunnelsArgs -split ";"
   $arr | foreach {
     if ($_ -ne ""){
-      Write-Host $_
-      $curSubArr=$_ -Replace "^(.*)(//)(.*)$",'$3' -split "_"
-      Write-Host $curSubArr
+      $curSubArr=$_ -Replace "^(.*)(//)(.*)$",'$3' -split ","
       if($curSubArr[0] -eq ""){
           Throw "At least an IP must be set for the tunnel $($arr.IndexOf($_)+1)"
       }
@@ -101,29 +102,31 @@ if($multiTunnelsArgs -ne ""){
       if($curSubArr[0] -eq ""){
         Throw "You must provide the ip address for each tunnel!"
       }else{
-        $connObj | Add-Member -type NoteProperty -name url -Value $curSubArr[0]
+        $curSubSubArr=$curSubArr[0] -split ":"
+        $connObj | Add-Member -type NoteProperty -name url -Value $curSubSubArr[0]
+        if($($curSubSubArr[1] -replace "[\s|\n|\r]",'') -eq "" -or $curSubSubArr[1] -eq -1){
+          $connObj | Add-Member -type NoteProperty -name port -Value $defaultPort
+        }else{
+          $connObj | Add-Member -type NoteProperty -name port -Value $curSubSubArr[1]
+        }
       }
-      if($($curSubArr[1] -replace "[\s|\n|\r]",'') -eq "" -or $curSubArr[1] -eq -1){
-        $connObj | Add-Member -type NoteProperty -name port -Value $defaultPort
-      }else{
-        $connObj | Add-Member -type NoteProperty -name port -Value $curSubArr[1]
-      }
-      if($($curSubArr[2] -replace "[\s|\n|\r]",'') -eq ""){
+      if($($curSubArr[1] -replace "[\s|\n|\r]",'') -eq ""){
         $connObj | Add-Member -type NoteProperty -name username -Value $defaultUsername
       }else{
-        $connObj | Add-Member -type NoteProperty -name username -Value $curSubArr[2]
+        $connObj | Add-Member -type NoteProperty -name username -Value $curSubArr[1]
       }
-      if($($curSubArr[3] -replace "[\s|\n|\r]",'') -eq ""){
+      if($($curSubArr[2] -replace "[\s|\n|\r]",'') -eq ""){
         $connObj | Add-Member -type NoteProperty -name password -Value $defaultPassword
       }else{
-        $connObj | Add-Member -type NoteProperty -name password -Value $curSubArr[3]
+        $connObj | Add-Member -type NoteProperty -name password -Value $curSubArr[2]
       }
       $arrConnObj+=$connObj
     }
   }
-  Write-Host ($arrConnObj | Format-Table | Out-String)
   $arrConnObj=$arrConnObj | sort -Descending
-  Write-Host ($arrConnObj | Format-Table | Out-String)
+  if ($debugMode -eq "true"){
+    Write-Host ($arrConnObj | Format-Table | Out-String)
+  }
   sleep 10
   if ($($arrConnObj.Length) -lt 2){
     Throw "You must provide at least two connections in order to establish a tunnel!"
@@ -157,7 +160,7 @@ if($multiTunnelsArgs -ne ""){
     #Start-Process -FilePath $($winSCPPath) -ArgumentList "scp://$($lastConnObj.username):$($lastConnObj.password)@localhost:$($tunnelPort)" -WindowStyle Maximized
   }elseif($mode -eq "vnc"){
     Write-Host "&$($global:currentLocation)\Set-VNC.ps1 -ip localhost -password ******** -port $($tunnelPort)"
-    &"$($global:currentLocation)\Set-VNC.ps1" -ip "localhost" -port "$($tunnelPort)"
+    &"$($global:currentLocation)\Set-VNC.ps1" -ip "localhost" -port "$($tunnelPort)" -password "$($lastConnObj.password)"
     #Start-Process -FilePath .\Set-VNC.ps1 -ip "localhost" -port $($tunnelPort) -password "$($lastConnObj.password)" -WindowStyle Maximized
   }else{
     Write-Host "&$($global:currentLocation)\Set-SSH.ps1 -ip localhost -username $($lastConnObj.username) -password ******** -port $($tunnelPort)"
@@ -214,7 +217,7 @@ if($multiTunnelsArgs -ne ""){
   if($mode -eq "scp"){
     &"$($global:currentLocation)\Set-SCP.ps1" -ip "localhost" -username "$($username2)" -password "$($password2)" -port "$($tunnelPort)"
     #Start-Process -FilePath $($winSCPPath) -ArgumentList "scp://$($lastConnObj.username):$($lastConnObj.password)@localhost:$($tunnelPort)" -WindowStyle Maximized
-  elseif($mode -eq "ftp"){
+  }elseif($mode -eq "ftp"){
     &"$($global:currentLocation)\Set-SCP.ps1" -ip "localhost" -username "$($username2)" -password "$($password2)" -port "$($tunnelPort)" -proto "FTP"
   #Start-Process -FilePath $($winSCPPath) -ArgumentList "scp://$($lastConnObj.username):$($lastConnObj.password)@localhost:$($tunnelPort)" -WindowStyle Maximized
   }elseif($mode -eq "vnc"){
